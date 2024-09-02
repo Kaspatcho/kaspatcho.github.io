@@ -23,8 +23,26 @@
     border-radius: 0.3rem;
 }
 
+.form-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.row {
+    display: flex;
+    flex: row;
+    justify-content: space-between;
+}
+
 @media (max-width: 1080px) {
     .card {
         flex-direction: column;
+    }
+
+    .container {
+        top: 1rem;
+        left: 2rem;
+        transform: none;
     }
 }

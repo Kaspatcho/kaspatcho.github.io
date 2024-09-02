@@ -10,22 +10,29 @@
 </head>
 <body>
     <div class="container">
-        <div class="card">
-            <div class="card-title" id="line" data-line="287" data-sentido="volta">Linha 287 - Diadema</div>
-            <div class="card-body" id="distance"></div>
+        <div class="form-container">
+            <div class="row">
+                <label for="linha">Linha: </label>
+                <input type="text" name="linha" id="linha">
+                <button id="search">Pesquisar</button>
+            </div>
+
+            <div class="row">
+                <label for="stop">Parada: </label>
+                <select name="stop" id="stop"></select>
+            </div>
+
+            <div class="row">
+                <label for="sentido">Sentido: </label>
+                <select name="sentido" id="sentido">
+                    <option value="ida">Ida</option>
+                    <option value="volta">Volta</option>
+                </select>
+                <button id="select">Selecionar</button>
+            </div>
         </div>
-        <div class="card">
-            <div class="card-title" id="line" data-line="286" data-sentido="volta">Linha 286 - Santo André</div>
-            <div class="card-body" id="distance"></div>
-        </div>
-        <div class="card">
-            <div class="card-title" id="line" data-line="288" data-sentido="volta">Linha 288 - Jabaquara</div>
-            <div class="card-body" id="distance"></div>
-        </div>
-        <div class="card">
-            <div class="card-title" id="line" data-line="285" data-sentido="volta">Linha 285 - São Mateus</div>
-            <div class="card-body" id="distance"></div>
-        </div>
+
+        <div class="card"></div>
     </div>
 </body>
 </html>
