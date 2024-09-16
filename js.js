@@ -3,13 +3,11 @@ const stopSelection = document.querySelector('.form-container #stop')
 const selectButton = document.querySelector('.form-container #select')
 
 lineSearch.addEventListener('click', async () => {
-    let line = document.querySelector('.form-container #linha').value
+    const lines = Array.from(new Set(document.querySelector('.form-container #linha')?.value?.split(',') ?? []))
     let sentido = document.querySelector('.form-container #sentido').value
-    if(!line) return
+    if(!lines) return
 
-    const [ { sentido: sentidoParada, pontos: ida, destino: destino1 }, { pontos: volta, destino: destino2 } ] = await getLineStops(line)
-    document.querySelector('.form-container #sentido [value="ida"]').dataset.destino = (sentidoParada === 'ida') ? destino1 : destino2
-    document.querySelector('.form-container #sentido [value="volta"]').dataset.destino = (sentidoParada === 'volta') ? destino1 : destino2
+    const [ { sentido: sentidoParada, pontos: ida }, { pontos: volta } ] = await getLineStops(lines[0])
 
     stopSelection.innerHTML = ''
     for (const { latitude, longitude, endereco } of (sentido === sentidoParada ? ida : volta)) {
@@ -23,18 +21,24 @@ lineSearch.addEventListener('click', async () => {
 selectButton.addEventListener('click', async () => {
     const sentido = document.querySelector('.form-container #sentido').value
     if(!sentido || !stopSelection.value) return
-
     const [ originLat, originLong ] = stopSelection.value.split(';')
-    const line = document.querySelector('.form-container #linha').value
-    const bus = await getClosestBus(line, { latitude: originLat, longitude: originLong })
-    const { ida, volta } = bus
-    let destiny = document.querySelector('.form-container #sentido [value="ida"]').dataset.destino
-    if(sentido === 'volta') {
-        destiny = document.querySelector('.form-container #sentido [value="volta"]').dataset.destino
-    }
+    const lines = Array.from(new Set(document.querySelector('.form-container #linha')?.value?.split(',') ?? []))
+    const container = document.querySelector('.card-container')
+    container.innerHTML = ''
 
-    const card = document.querySelector('.container .card')
-    card.innerHTML = ''
+    for (const line of lines) {
+        const bus = await getClosestBus(line, { latitude: originLat, longitude: originLong })
+        const { ida, volta, rotas: [ { destino: destinoIda }, { destino: destinoVolta } ] } = bus
+        let destiny = sentido === 'ida' ? destinoIda : destinoVolta
+
+        const card = createCard(line, destiny, Math.floor(sentido === 'ida' ? ida.distance : volta.distance))
+        container.append(card)
+    }
+})
+
+function createCard(line, destiny, distance) {
+    const card = document.createElement('div')
+    card.classList.add('card')
 
     const cardTitle = document.createElement('div')
     cardTitle.classList.add('card-title')
@@ -47,9 +51,11 @@ selectButton.addEventListener('click', async () => {
     const cardBody = document.createElement('div')
     cardBody.classList.add('card-body')
     cardBody.id = 'distance'
-    cardBody.innerText = `Distância: ${Math.floor(sentido === 'ida' ? ida.distance : volta.distance)} metros`
+    cardBody.innerText = `Distância: ${distance} metros`
     card.append(cardBody)
-})
+
+    return card
+}
 
 
 async function getLineStops(line) {
@@ -67,11 +73,11 @@ async function getClosestBus(codLinha, origin) {
 
     const url = `https://rest-emtu.noxxonsat.com.br/rest/lineDetails?linha=${codLinha}`
     const resp = await fetch(url)
-    const { linhas: [ { tarifa, veiculos, tp, ts } ] } = await resp.json()
+    const { linhas: [ { tarifa, veiculos, rotas } ] } = await resp.json()
     const d = veiculos.map(v => { return {...v, distance: calculateDistance(origin.latitude, origin.longitude, v.latitude, v.longitude)}})
     const closestIda = d.filter(a => a.sentidoLinha === 'ida').sort((a, b) => a.distance - b.distance)[0]
     const closestVolta = d.filter(a => a.sentidoLinha === 'volta').sort((a, b) => a.distance - b.distance)[0]
-    return { tarifa, ida: closestIda, volta: closestVolta, tp, ts }
+    return { tarifa, ida: closestIda, volta: closestVolta, rotas }
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
