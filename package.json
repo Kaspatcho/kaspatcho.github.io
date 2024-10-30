@@ -1,0 +1,29 @@
+{
+  "name": "emtu",
+  "version": "1.0.0",
+  "description": "a simple site to get bus distance",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kaspatcho/kaspatcho.github.io.git"
+  },
+  "keywords": [
+    "emtu",
+    "bus"
+  ],
+  "author": "Kaspatcho",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Kaspatcho/kaspatcho.github.io/issues"
+  },
+  "homepage": "https://github.com/Kaspatcho/kaspatcho.github.io#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "node-libcurl": "^4.0.0"
+  }
+}
