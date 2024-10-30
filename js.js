@@ -15,7 +15,7 @@ function updateLines() {
             let timeMesurement = timeRemaining >= 1 ? 'minutos' : 'segundos'
             if(timeRemaining < 1) timeRemaining *= 60
             line.querySelector('#line').textContent = lineName + ' - ' + bus.destiny
-            line.querySelector('#distance').textContent = parseInt(timeRemaining) + ' ' + timeMesurement
+            line.querySelector('#details').textContent = parseInt(timeRemaining) + ' ' + timeMesurement
         })
     }
 }
