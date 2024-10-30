@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/' + 'index.html')
 })
 
-app.get('/line', async (req, res) => {
+app.get('/api/line', async (req, res) => {
     try {
         res.json(await getData(req.query.line))
     } catch (error) {
