@@ -44,7 +44,7 @@ async function getClosestBus(stopAdress, line) {
 }
 
 function fetchLine(line) {
-    return fetch('/line/' + line)
+    return fetch('/line?line=' + line)
     // return fetch("https://rest-emtu.noxxonsat.com.br/rest/lineDetails?linha=" + line, {
     //     "headers": {
     //         "accept": "application/json",

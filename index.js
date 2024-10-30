@@ -35,16 +35,16 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/' + 'index.html')
 })
 
-app.get('/:file', (req, res) => {
-    res.sendFile(__dirname + '/' + req.params.file)
-})
-
-app.get('/line/:line', async (req, res) => {
+app.get('/line', async (req, res) => {
     try {
-        res.json(await getData(req.params.line))
+        res.json(await getData(req.query.line))
     } catch (error) {
         res.status(500).send(error)
     }
+})
+
+app.get('/:file', (req, res) => {
+    res.sendFile(__dirname + '/' + req.params.file)
 })
 
 app.listen(port, () => console.log('listening on port ' + port))
