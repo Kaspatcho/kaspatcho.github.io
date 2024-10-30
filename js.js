@@ -15,7 +15,7 @@ function updateLines() {
             let timeMesurement = timeRemaining >= 1 ? 'minutos' : 'segundos'
             if(timeRemaining < 1) timeRemaining *= 60
             line.querySelector('#line').textContent = lineName + ' - ' + bus.destiny
-            line.querySelector('#distance').textContent = bus.distance.toFixed(2) + ' metros' + '(' + parseInt(timeRemaining) + ' ' + timeMesurement + ')'
+            line.querySelector('#distance').textContent = parseInt(timeRemaining) + ' ' + timeMesurement
         })
     }
 }
@@ -45,19 +45,6 @@ async function getClosestBus(stopAdress, line) {
 
 function fetchLine(line) {
     return fetch('/api/line?line=' + line)
-    // return fetch("https://rest-emtu.noxxonsat.com.br/rest/lineDetails?linha=" + line, {
-    //     "headers": {
-    //         "accept": "application/json",
-    //         "accept-language": "en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7",
-    //         "sec-ch-ua": "\"Chromium\";v=\"130\", \"Google Chrome\";v=\"130\", \"Not?A_Brand\";v=\"99\"",
-    //         "sec-ch-ua-mobile": "?0",
-    //         "sec-ch-ua-platform": "\"Linux\"",
-    //         "sec-fetch-dest": "document",
-    //         "sec-fetch-mode": "navigate",
-    //         "sec-fetch-site": "none",
-    //         "sec-fetch-user": "?1",
-    //     }
-    // })
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
