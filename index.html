@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,32 +8,34 @@
     <title>Teste</title>
     <link rel="stylesheet" href="style.css">
     <script src="js.js" defer></script>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
-    <div class="container">
-        <div class="form-container">
-            <div class="row">
-                <label for="linha">Linha: </label>
-                <input type="text" name="linha" id="linha">
-                <button id="search">Pesquisar</button>
-            </div>
-
-            <div class="row">
-                <label for="stop">Parada: </label>
-                <select name="stop" id="stop"></select>
-            </div>
-
-            <div class="row">
-                <label for="sentido">Sentido: </label>
-                <select name="sentido" id="sentido">
-                    <option value="ida">Ida</option>
-                    <option value="volta">Volta</option>
-                </select>
-                <button id="select">Selecionar</button>
-            </div>
+    <div class="container py-5 align-items-center">
+        <div class="line-container d-flex align-items-center justify-content-start mb-3"
+            style="background-color: #333; border-radius: 0.2rem;">
+            <h2 id="line" class="col-9" data-line="285">285 - FERRAZOPOLIS</h2>
+            <h4 id="distance" class="col-3" data-distance="0"></h4>
         </div>
-
-        <div class="card-container"></div>
+        <div class="line-container d-flex align-items-center justify-content-start mb-3"
+            style="background-color: #333; border-radius: 0.2rem;">
+            <h2 id="line" class="col-9" data-line="286">286 - SANTO ANDRE</h2>
+            <h4 id="distance" class="col-3" data-distance="0"></h4>
+        </div>
+        <div class="line-container d-flex align-items-center justify-content-start mb-3"
+            style="background-color: #333; border-radius: 0.2rem;">
+            <h2 id="line" class="col-9" data-line="287">287 - SANTO ANDRE</h2>
+            <h4 id="distance" class="col-3" data-distance="0"></h4>
+        </div>
+        <div class="line-container d-flex align-items-center justify-content-start mb-3"
+            style="background-color: #333; border-radius: 0.2rem;">
+            <h2 id="line" class="col-9" data-line="288">288 - JARAQUARA</h2>
+            <h4 id="distance" class="col-3" data-distance="0"></h4>
+        </div>
     </div>
+
+    <iframe src="https://rest-emtu.noxxonsat.com.br/rest/lineDetails?linha=285" frameborder="0" style="display: none;"></iframe>
 </body>
 </html>

@@ -1,105 +1,81 @@
-const lineSearch = document.querySelector('.form-container #search')
-const stopSelection = document.querySelector('.form-container #stop')
-const selectButton = document.querySelector('.form-container #select')
+const address = 'Parada Metropolitana ETEC/FATEC/SENAI'
+const lineContainers = document.querySelectorAll('.line-container')
+const sentido = 'volta'
+const routeIndex = sentido === 'ida' ? 0 : 1
 
-lineSearch.addEventListener('click', async () => {
-    const lines = Array.from(new Set(document.querySelector('.form-container #linha')?.value?.split(',') ?? []))
-    let sentido = document.querySelector('.form-container #sentido').value
-    if(!lines) return
+updateLines()
+setInterval(updateLines, 60000)
 
-    const [ { sentido: sentidoParada, pontos: ida }, { pontos: volta } ] = await getLineStops(lines[0])
-
-    stopSelection.innerHTML = ''
-    for (const { latitude, longitude, endereco } of (sentido === sentidoParada ? ida : volta)) {
-        const option = document.createElement('option')
-        option.value = `${latitude};${longitude}`
-        option.innerText = endereco
-        stopSelection.append(option)
+function updateLines() {
+    for (const line of lineContainers) {
+        const lineName = line.querySelector('#line').dataset.line
+        getClosestBus(address, lineName).then(bus => {
+            console.log(bus)
+            let timeRemaining = bus.distance / bus.speed
+            let timeMesurement = timeRemaining >= 1 ? 'minutos' : 'segundos'
+            if(timeRemaining < 1) timeRemaining *= 60
+            line.querySelector('#line').textContent = lineName + ' - ' + bus.destiny
+            line.querySelector('#distance').textContent = bus.distance.toFixed(2) + ' metros' + '(' + parseInt(timeRemaining) + ' ' + timeMesurement + ')'
+        })
     }
-})
-
-selectButton.addEventListener('click', async () => {
-    const sentido = document.querySelector('.form-container #sentido').value
-    if(!sentido || !stopSelection.value) return
-    const [ originLat, originLong ] = stopSelection.value.split(';')
-    const lines = Array.from(new Set(document.querySelector('.form-container #linha')?.value?.split(',') ?? []))
-    const container = document.querySelector('.card-container')
-    container.innerHTML = ''
-
-    for (const line of lines) {
-        const bus = await getClosestBus(line, { latitude: originLat, longitude: originLong })
-        const { ida, volta, rotas: [ { destino: destinoIda }, { destino: destinoVolta } ] } = bus
-        let destiny = sentido === 'ida' ? destinoIda : destinoVolta
-
-        const card = createCard(line, destiny, Math.floor(sentido === 'ida' ? ida.distance : volta.distance))
-        container.append(card)
-    }
-})
-
-function createCard(line, destiny, distance) {
-    const card = document.createElement('div')
-    card.classList.add('card')
-
-    const cardTitle = document.createElement('div')
-    cardTitle.classList.add('card-title')
-    cardTitle.id = 'line'
-    cardTitle.dataset.line = line
-    cardTitle.dataset.sentido = 'volta'
-    cardTitle.innerText = `${line} - ${destiny}`
-    card.append(cardTitle)
-
-    const cardBody = document.createElement('div')
-    cardBody.classList.add('card-body')
-    cardBody.id = 'distance'
-    cardBody.innerText = `Distância: ${distance} metros`
-    card.append(cardBody)
-
-    return card
 }
 
+async function getClosestBus(stopAdress, line) {
+    const resp = await fetchLine(line)
+    const lineData = await resp.json()
+    const { linhas: [linhas] } = lineData
+    const stop = linhas.rotas[routeIndex].pontos.find(v => v.endereco === stopAdress)
+    const destiny = linhas.rotas[routeIndex].destino
+    const veiculos = linhas.veiculos.filter(v => v.sentidoLinha === sentido)
 
-async function getLineStops(line) {
-    const url = `https://rest-emtu.noxxonsat.com.br/rest/lineDetails?linha=${line}`
-    const resp = await fetch(url)
-    const json = await resp.json()
-    const { linhas: [ { rotas } ] } = json
+    const time = linhas.rotas[routeIndex].tempo
+    const firstPoint = linhas.rotas[routeIndex].pontos[0]
+    const lastPoint = linhas.rotas[routeIndex].pontos[linhas.rotas[routeIndex].pontos.length - 1]
+    const totalDistance = calculateDistance(firstPoint.latitude, firstPoint.longitude, lastPoint.latitude, lastPoint.longitude)
+    const speed = totalDistance / time
 
-    return rotas
+    const closest = veiculos.reduce((acc, veiculo) => {
+        const distance = calculateDistance(veiculo.latitude, veiculo.longitude, stop.latitude, stop.longitude)
+        return distance < acc.distance ? { ...veiculo, distance } : acc
+    }, { distance: Infinity })
+
+    const distance = calculateDistance(closest.latitude, closest.longitude, stop.latitude, stop.longitude)
+    return { ...closest, distance, destiny, speed }
 }
 
-async function getClosestBus(codLinha, origin) {
-    //** codLinha: numero do onibus */
-    if(!codLinha || !origin?.latitude || !origin?.longitude) return
-
-    const url = `https://rest-emtu.noxxonsat.com.br/rest/lineDetails?linha=${codLinha}`
-    const resp = await fetch(url)
-    const { linhas: [ { tarifa, veiculos, rotas } ] } = await resp.json()
-    const d = veiculos.map(v => { return {...v, distance: calculateDistance(origin.latitude, origin.longitude, v.latitude, v.longitude)}})
-    const closestIda = d.filter(a => a.sentidoLinha === 'ida').sort((a, b) => a.distance - b.distance)[0]
-    const closestVolta = d.filter(a => a.sentidoLinha === 'volta').sort((a, b) => a.distance - b.distance)[0]
-    return { tarifa, ida: closestIda, volta: closestVolta, rotas }
+function fetchLine(line) {
+    return fetch("https://rest-emtu.noxxonsat.com.br/rest/lineDetails?linha=" + line, {
+        "headers": {
+            "accept": "application/json",
+            "accept-language": "en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7",
+            "sec-ch-ua": "\"Chromium\";v=\"130\", \"Google Chrome\";v=\"130\", \"Not?A_Brand\";v=\"99\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Linux\"",
+            "sec-fetch-dest": "document",
+            "sec-fetch-mode": "navigate",
+            "sec-fetch-site": "none",
+            "sec-fetch-user": "?1",
+        }
+    })
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
-  // Convert degrees to radians
-  lat1 = (Math.PI / 180) * lat1;
-  lon1 = (Math.PI / 180) * lon1;
-  lat2 = (Math.PI / 180) * lat2;
-  lon2 = (Math.PI / 180) * lon2;
+    lat1 = (Math.PI / 180) * lat1;
+    lon1 = (Math.PI / 180) * lon1;
+    lat2 = (Math.PI / 180) * lat2;
+    lon2 = (Math.PI / 180) * lon2;
 
-  // Haversine formula
-  const dlat = lat2 - lat1;
-  const dlon = lon2 - lon1;
-  const a = Math.pow(Math.sin(dlat / 2), 2) +
-             Math.cos(lat1) * Math.cos(lat2) *
-             Math.pow(Math.sin(dlon / 2), 2);
+    // Haversine formula
+    const dlat = lat2 - lat1;
+    const dlon = lon2 - lon1;
+    const a = Math.pow(Math.sin(dlat / 2), 2) +
+        Math.cos(lat1) * Math.cos(lat2) *
+        Math.pow(Math.sin(dlon / 2), 2);
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  // Earth's radius in meters
-  const R = 6371000;
-
-  // Distance in meters
-  const distance = R * c;
-  return distance;
+    // Earth's radius in meters
+    const R = 6371000;
+    const distance = R * c;
+    return distance;
 }
