@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Roleta de Indulgências</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            height: 100vh;
+            background: #f0f8ff;
+            font-family: Arial, sans-serif;
+            flex-direction: column;
+        }
+
+        #resultado {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            max-width: 400px;
+        }
+
+        canvas {
+            border: 1px solid #ccc;
+            display: block;
+            max-width: 95vw !important;
+            max-height: 95vh !important;
+            background: #f8f8ff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="resultado">Clique na roleta para girar!</div>
+
+    <script>
+        let atos = [
+            { nome: "Adoração ao Santíssimo Sacramento por pelo menos 30 minutos", ePlenario: true },
+            { nome: "Rezar o Santo Rosário em grupo ou na igreja", ePlenario: true },
+            { nome: "Leitura da Sagrada Escritura por ao menos 30 minutos", ePlenario: true },
+            { nome: "Via-Sacra piedosamente rezada", ePlenario: true },
+            { nome: "Participar da bênção Urbi et Orbi do Papa", ePlenario: true },
+            { nome: "Visitar um cemitério e rezar pelos defuntos (plenária de 1 a 8 de novembro)", ePlenario: true },
+            { nome: "Rezar o Veni Creator no dia 1º de janeiro ou Pentecostes", ePlenario: true },
+            { nome: "Participar da Adoração da Cruz na Sexta-feira Santa", ePlenario: true },
+            { nome: "Rezar o Terço em família, comunidade religiosa ou associação piedosa", ePlenario: true },
+            { nome: "Participar de exercícios espirituais por pelo menos três dias", ePlenario: true },
+
+            { nome: "Assistir devotamente à primeira Missa de um sacerdote recém-ordenado", ePlenario: true },
+            { nome: "Renovar as promessas do batismo durante a Vigília Pascal ou no aniversário do batismo", ePlenario: true },
+            { nome: "Participar de uma ordenação sacerdotal", ePlenario: true },
+            { nome: "Rezar o Te Deum em ação de graças no último dia do ano civil", ePlenario: true },
+            { nome: "Visitar uma igreja no dia da dedicação e rezar o Pai-Nosso e o Credo", ePlenario: true },
+            { nome: "Visitar uma igreja ou oratório no dia de seu padroeiro e rezar o Pai-Nosso e o Credo", ePlenario: true },
+            { nome: "Visitar uma basílica menor e rezar o Pai-Nosso e o Credo, com as condições habituais", ePlenario: true },
+            { nome: "Participar devotamente da recitação pública do Rosário em outubro", ePlenario: true },
+            { nome: "Participar de um congresso eucarístico solene", ePlenario: true },
+            { nome: "Participar da renovação pública das promessas matrimoniais em um aniversário significativo", ePlenario: true },
+            { nome: "Receber com devoção a bênção papal dada pela rádio, TV ou internet, nas condições habituais", ePlenario: true },
+            { nome: "Realizar um retiro espiritual de pelo menos três dias completos", ePlenario: true },
+            { nome: "Visitar a igreja paroquial no dia da festa titular (padroeiro) e rezar o Pai-Nosso e o Credo", ePlenario: true },
+            { nome: "Assistir à Primeira Comunhão de uma criança, com espírito de fé", ePlenario: true },
+
+            { nome: "Rezar o Angelus", ePlenario: false },
+            { nome: "Rezar o Regina Caeli", ePlenario: false },
+            { nome: "Rezar o Magnificat", ePlenario: false },
+            { nome: "Rezar o Salmo 129 (Das profundezas)", ePlenario: false },
+            { nome: "Rezar o 'Lembrai-vos, ó piíssima Virgem Maria'", ePlenario: false },
+            { nome: "Rezar o 'Ó Maria concebida sem pecado, rogai por nós que recorremos a vós'", ePlenario: false },
+            { nome: "Rezar o 'Sagrado Coração de Jesus, confio e espero em Vós'", ePlenario: false },
+            { nome: "Rezar o 'Jesus, manso e humilde de coração, fazei o nosso coração semelhante ao Vosso'", ePlenario: false },
+            { nome: "Rezar o 'Alma de Cristo, santificai-me'", ePlenario: false },
+            { nome: "Rezar o 'Vinde, Espírito Santo'", ePlenario: false },
+            { nome: "Rezar a Ladainha de São José", ePlenario: false },
+            { nome: "Rezar a Ladainha do Santíssimo Nome de Jesus", ePlenario: false },
+            { nome: "Rezar a Ladainha do Preciosíssimo Sangue de Cristo", ePlenario: false },
+            { nome: "Rezar a Ladainha de Todos os Santos", ePlenario: false },
+            { nome: "Rezar o Ato de Fé", ePlenario: false },
+            { nome: "Rezar o Ato de Esperança", ePlenario: false },
+            { nome: "Rezar o Ato de Caridade", ePlenario: false },
+            { nome: "Rezar o Ato de Contrição", ePlenario: false },
+            { nome: "Rezar o Ofício da Paixão de Cristo", ePlenario: false },
+            { nome: "Rezar o Ofício do Sagrado Coração de Jesus", ePlenario: false },
+            { nome: "Rezar o Ofício da Santíssima Virgem Maria", ePlenario: false },
+            { nome: "Rezar o Ofício da Imaculada Conceição", ePlenario: false },
+            { nome: "Rezar o Ofício de São José", ePlenario: false },
+            { nome: "Rezar o Ofício dos Defuntos (Laudes ou Vésperas)", ePlenario: false },
+            { nome: "Ensinar ou aprender a doutrina cristã", ePlenario: false },
+            { nome: "Usar com devoção objetos de piedade devidamente abençoados", ePlenario: false },
+            { nome: "Rezar o Sub tuum praesidium (À vossa proteção recorremos, Santa Mãe de Deus)", ePlenario: false },
+            { nome: "Rezar o Memorare (Lembrai-vos, ó piíssima Virgem Maria)", ePlenario: false },
+            { nome: "Rezar a oração 'Ó bom e dulcíssimo Jesus' após a comunhão", ePlenario: false },
+            { nome: "Rezar a oração 'Anjo de Deus, meu zeloso guardador'", ePlenario: false },
+            { nome: "Rezar a oração 'A vós, São José'", ePlenario: false },
+            { nome: "Rezar a oração 'Ó glorioso apóstolo São Pedro'", ePlenario: false },
+            { nome: "Rezar a oração 'Vinde Espírito Criador' (Veni Creator Spiritus)", ePlenario: false },
+            { nome: "Rezar a oração 'Alma de Cristo'", ePlenario: false },
+            { nome: "Rezar o Salmo 50 (Miserere mei Deus)", ePlenario: false },
+            { nome: "Rezar o Salmo 116 (Laudate Dominum)", ePlenario: false },
+            { nome: "Rezar o Salmo 150 (Laudate Dominum in sanctis eius)", ePlenario: false },
+            { nome: "Rezar o Cântico de Zacarias (Benedictus)", ePlenario: false },
+            { nome: "Rezar o Cântico de Simeão (Nunc Dimittis)", ePlenario: false },
+            { nome: "Rezar o Te Deum em ação de graças", ePlenario: false },
+            { nome: "Rezar o hino Magnificat em ação de graças", ePlenario: false },
+            { nome: "Rezar a Ladainha de Nossa Senhora de Loretto", ePlenario: false },
+            { nome: "Rezar a Ladainha do Sagrado Coração de Jesus", ePlenario: false },
+            { nome: "Rezar a Ladainha da Sagrada Família", ePlenario: false },
+            { nome: "Rezar a Ladainha do Espírito Santo", ePlenario: false },
+            { nome: "Rezar a Ladainha da Divina Providência", ePlenario: false },
+            { nome: "Dizer: 'Coração Doloroso e Imaculado de Maria, rogai por nós'", ePlenario: false },
+            { nome: "Dizer: 'Ó Sangue e Água que jorrastes do Coração de Jesus como fonte de misericórdia para nós, eu confio em Vós'", ePlenario: false },
+            { nome: "Dizer: 'Jesus, Maria, eu Vos amo! Salvai as almas!'", ePlenario: false },
+            { nome: "Dizer: 'Ó meu Jesus, perdoai-nos, livrai-nos do fogo do inferno...'", ePlenario: false },
+            { nome: "Dizer: 'São Miguel Arcanjo, defendei-nos no combate'", ePlenario: false },
+            { nome: "Rezar o Terço da Divina Misericórdia", ePlenario: false },
+            { nome: "Rezar a oração de São Bernardo: 'Lembrai-vos, ó piíssima Virgem Maria'", ePlenario: false },
+            { nome: "Rezar a oração 'Vinde Espírito Criador' em qualquer momento do ano", ePlenario: false },
+            { nome: "Rezar o Credo (Símbolo dos Apóstolos) com devoção", ePlenario: false },
+            { nome: "Rezar o Cântico de Maria (Magnificat) à noite", ePlenario: false },
+            { nome: "Rezar o Cântico de Zacarias (Benedictus) pela manhã", ePlenario: false },
+            { nome: "Rezar o Ofício das Horas (Laudes ou Vésperas)", ePlenario: false },
+            { nome: "Rezar a oração 'Ó Maria, Rainha do Céu e da Terra'", ePlenario: false },
+            { nome: "Rezar a oração 'Ó Santo Anjo da Guarda, guardai-me sempre'", ePlenario: false },
+            { nome: "Rezar a oração 'Senhor, dai-nos sacerdotes santos'", ePlenario: false },
+            { nome: "Dizer: 'Ó Sangue Preciosíssimo de Jesus, salvai-nos'", ePlenario: false },
+            { nome: "Dizer: 'Maria, Mãe de misericórdia, rogai por nós'", ePlenario: false },
+            { nome: "Dizer: 'Jesus, Salvador do mundo, salvai-nos'", ePlenario: false },
+            { nome: "Dizer: 'Coração Imaculado de Maria, sede nossa salvação'", "Plenario": false },
+        ];
+
+        let angle = 0;
+        let speed = 0;
+        let spinning = false;
+        let chosenIndex = 0;
+        let canvasSize = 400;
+        let radius = 340;
+
+        function getResponsiveCanvasSize() {
+            let side = Math.min(window.innerWidth, window.innerHeight) * 0.95;
+            side = Math.max(side, 260);
+            return Math.round(side);
+        }
+
+        function setup() {
+            canvasSize = getResponsiveCanvasSize();
+            radius = Math.floor(canvasSize * 0.85);
+            let canvas = createCanvas(canvasSize, canvasSize);
+            canvas.parent(document.body);
+            angleMode(RADIANS);
+            textAlign(CENTER, CENTER);
+            textSize(getFontSize());
+        }
+
+        function windowResized() {
+            canvasSize = getResponsiveCanvasSize();
+            radius = Math.floor(canvasSize * 0.85);
+            resizeCanvas(canvasSize, canvasSize);
+            textSize(getFontSize());
+        }
+
+        function draw() {
+            background(220);
+            translate(width / 2, height / 2);
+            rotate(angle);
+            let sliceAngle = 5 * TWO_PI / atos.length;
+            let fontSize = getFontSize();
+
+            for (let i = 0; i < atos.length; i++) {
+                fill(i % 2 === 0 ? '#ADD8E6' : '#87CEEB');
+                arc(0, 0, radius, radius, i * sliceAngle, (i + 1) * sliceAngle, PIE);
+                push();
+                rotate(i * sliceAngle + sliceAngle / 2);
+                fill(0);
+                noStroke();
+                textSize(fontSize);
+                let nomeRender = atos[i].nome.length > 15 ? atos[i].nome.substring(0, 12) + '...' : atos[i].nome;
+                text(nomeRender, radius * 0.32, 0);
+                pop();
+            }
+
+            if (!spinning && atos.length > 0) {
+                let adjustedAngle = (TWO_PI - (angle % TWO_PI)) % TWO_PI;
+                let sliceAngle = TWO_PI / atos.length;
+                chosenIndex = floor(adjustedAngle / sliceAngle) % atos.length;
+            }
+
+            if (spinning) {
+                angle += speed;
+                speed *= 0.97;
+                if (speed < 0.01) {
+                    spinning = false;
+                    let adjustedAngle = (TWO_PI - (angle % TWO_PI)) % TWO_PI;
+                    let sliceAngle = TWO_PI / atos.length;
+                    chosenIndex = floor(adjustedAngle / sliceAngle) % atos.length;
+                    mostrarResultado();
+                }
+            }
+        }
+
+        function getFontSize() {
+            return Math.max(12, Math.round(canvasSize / 30));
+        }
+
+        function mousePressed() {
+            if (
+                mouseX >= 0 && mouseX <= width &&
+                mouseY >= 0 && mouseY <= height
+            ) {
+                if (!spinning) {
+                    speed = random(0.2, 0.5);
+                    spinning = true;
+                    document.getElementById('resultado').innerText = 'Girando...';
+                }
+            }
+        }
+
+        function touchStarted() {
+            mousePressed();
+        }
+
+        function mostrarResultado() {
+            let ato = atos[chosenIndex];
+            let tipo = ato.ePlenario ? "(Plenária)" : "(Parcial)";
+            document.getElementById('resultado').innerText = `Ato sugerido: ${ato.nome} ${tipo}`;
+        }
+    </script>
+
+</body>
+
+</html>
