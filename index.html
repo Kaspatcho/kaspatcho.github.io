@@ -360,7 +360,7 @@
             let ato = atos[chosenIndex];
             let tipo = ato.ePlenario ? "(Plenária)" : "(Parcial)";
             let anchor = document.createElement('a');
-            anchor.href = `https://duckduckgo.com/?q=!ducky+${encodeURIComponent(ato.nome)}`;
+            anchor.href = `https://www.google.com/search?q=${encodeURIComponent(ato.nome)}`;
             anchor.target = '_blank';
             anchor.innerText = `Ato sugerido: ${ato.nome} ${tipo}`;
             document.getElementById('resultado').innerHTML = '';
